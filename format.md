@@ -19,12 +19,12 @@ typedef struct
 {
   int32_t   header_magic;  /* Version of file. */
   int32_t   block_size;    /* The optimal i/o blocksize from stat. */
-  off_t dir;               /* File address of hash directory table. */
+  off_t     dir;           /* File address of hash directory table. */
   int32_t   dir_size;      /* Size in bytes of the table.  */
   int32_t   dir_bits;      /* The number of address bits used in the table.*/
   int32_t   bucket_size;   /* Size in bytes of a hash bucket struct. */
   int32_t   bucket_elems;  /* Number of elements in a hash bucket. */
-  off_t next_block;        /* The next unallocated block address. */
+  off_t     next_block;    /* The next unallocated block address. */
 } gdbm_file_header;
 ```
 
@@ -57,11 +57,11 @@ BUCKET_AVAIL avail elements with the bucket.
 ```
 typedef struct
 {
-  int   av_count;            /* The number of bucket_avail entries. */
+  int32_t   av_count;            /* The number of bucket_avail entries. */
   avail_elem bucket_avail[BUCKET_AVAIL];  /* Distributed avail. */
-  int   bucket_bits;         /* The number of bits used to get here. */
-  int   count;               /* The number of element buckets full. */
-  bucket_element h_table[1]; /* The table.  Make it look like an array.*/
+  int32_t   bucket_bits;         /* The number of bits used to get here. */
+  int32_t   count;               /* The number of element buckets full. */
+  bucket_element h_table[1];     /* The table.  Make it look like an array.*/
 } hash_bucket;
 ```
 
@@ -77,12 +77,12 @@ key.
 ```
 typedef struct
 {
-  int   hash_value;       /* The complete 31 bit value. */
+  int32_t   hash_value;   /* The complete 31 bit value. */
   char  key_start[SMALL]; /* Up to the first SMALL bytes of the key.  */
   off_t data_pointer;     /* The file address of the key record. The
                              data record directly follows the key.  */
-  int   key_size;         /* Size of key data in the file. */
-  int   data_size;        /* Size of associated data in the file. */
+  int32_t   key_size;     /* Size of key data in the file. */
+  int32_t   data_size;    /* Size of associated data in the file. */
 } bucket_element;
 ```
 
@@ -100,9 +100,9 @@ elements*), and a pointer to the next block in the linked list.
 ```
 typedef struct
 {
-  int   size;             /* The number of avail elements in the table.*/
-  int   count;            /* The number of entries in the table. */
-  off_t next_block;       /* The file address of the next avail block. */
+  int32_t   size;         /* The number of avail elements in the table.*/
+  int32_t   count;        /* The number of entries in the table. */
+  off_t     next_block;   /* The file address of the next avail block. */
   avail_elem av_table[1]; /* The table.  Make it look like an array.  */
 } avail_block;
 ```
@@ -116,7 +116,7 @@ operation.
 ```
 typedef struct
 {
-  int   av_size;                /* The size of the available block. */
-  off_t  av_adr;                /* The file address of the available block. */
+  int32_t  av_size;            /* The size of the available block. */
+  off_t    av_adr;             /* The file address of the available block. */
 } avail_elem;
 ```
