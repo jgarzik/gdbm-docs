@@ -31,8 +31,7 @@ typedef struct
 ## Bucket Directory
 
 The 1st hash table accessed during lookups and storage is the *bucket
-directory*.  This is a vector of file offsets.  Each vector element
-points to a bucket.
+directory*.  This is a vector of file offsets.  Each vector element is a file offset, pointing to a single bucket.
 
 ```
 typedef struct
@@ -43,8 +42,17 @@ typedef struct
 
 ## Bucket
 
-The 2nd hash table accessed during lookups and storage is a small hash
-table that consists of a number of bucket elements, plus some metadata.
+A bucket is a small, 2nd hash table.  A GDBM database consists of a large number of buckets, indexed by hash via the bucket directory.
+
+A bucket consists of a number of bucket elements plus some bookkeeping fields.  The number of elements depends on the optimum blocksize for the storage device and on a parameter given at file creation time.  This bucket takes one block.
+
+When one of these tables gets full, it is split into two hash buckets.
+The contents are split between them by the use of the first few bits
+of the 31 bit hash function.  The location in a bucket is the hash
+value modulo the size of the bucket.  The in-memory images of the
+buckets are allocated by malloc using a calculated size depending of
+the file system buffer size.  To speed up write, each bucket will have
+BUCKET_AVAIL avail elements with the bucket.
 
 ```
 typedef struct
@@ -59,8 +67,12 @@ typedef struct
 
 ## Bucket Element
 
-An element is the final, atomic unit resultng from a lookup or update: a
-single key/value data record.
+A hash bucket element is the final, atomic unit resultng from a lookup or update: a single key/value data record.
+
+It contains the full 31 bit hash value, the "pointer" to the key and data (stored together) with their sizes.  It also
+has a small part of the actual key value.  It is used to verify the first
+part of the key has the correct value without having to read the actual
+key.
 
 ```
 typedef struct
@@ -76,10 +88,9 @@ typedef struct
 
 ## Avail Table
 
-The database-wide free list; a list of allocated, on-disk storage space
-(free space) available for re-use.  It is stored as a linked list of
-*avail blocks*, with the initial avail block referenced in the database
-header.
+The available file space is stored in an "avail" (available free space) table.  The one with most activity is contained in the file header. When that one fills up, it is split in half and half is pushed on an "avail stack."  When the active avail table is empty and the "avail stack" is not empty, the top of the stack is popped into the active avail table.
+   
+In other words, this is a database-wide free list; a list of allocated, on-disk storage space (free space) available for re-use.  It is stored as a linked list of *avail blocks*, with the initial avail block referenced in the database header.
 
 ## Avail Block
 
